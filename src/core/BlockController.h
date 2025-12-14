@@ -34,9 +34,9 @@ private:
     // ПРИВАТНІ ЧЛЕНИ (видно тільки всередині)
     // ────────────────────────────────────────────────────────────────────────
     
-    Block *currentBlock;              // ПОСИЛАННЯ на поточний блок (рухаємо цей)
-    GameField *field;                 // ПОСИЛАННЯ на поле (перевіряємо колізії)
-    IShapeProvider *shapeProvider;    // ПОСИЛАННЯ на постачальника форм (для поворотів)
+    Block &currentBlock;              // ПОСИЛАННЯ на поточний блок (рухаємо цей)
+    GameField &field;                 // ПОСИЛАННЯ на поле (перевіряємо колізії)
+    IShapeProvider &shapeProvider;    // ПОСИЛАННЯ на постачальника форм (для поворотів)
 
 public:
     // ────────────────────────────────────────────────────────────────────────
@@ -44,14 +44,14 @@ public:
     // ────────────────────────────────────────────────────────────────────────
     
     /**
-     * BlockController(Block *block, GameField *gameField, IShapeProvider *provider)
+     * BlockController(Block &block, GameField &gameField, IShapeProvider &provider)
      * 
      * Отримує три посилання на інші компоненти:
      *   - block = блок який буде рухати
      *   - gameField = поле де відбувається рух
-     *   - provider = пігахує форм для поворотів
+     *   - provider = постачальник форм для поворотів
      */
-    BlockController(Block *block, GameField *gameField, IShapeProvider *provider)
+    BlockController(Block &block, GameField &gameField, IShapeProvider &provider)
         : currentBlock(block), field(gameField), shapeProvider(provider) {}
 
     // ────────────────────────────────────────────────────────────────────────
@@ -68,9 +68,9 @@ public:
      */
     void moveLeft() {
         // checkCollision повідомляє: true = є удар, false = вільно
-        if (!field->checkCollision(*currentBlock, currentBlock->x - 1, currentBlock->y)) {
+        if (!field.checkCollision(currentBlock, currentBlock.x - 1, currentBlock.y)) {
             // Можна рухнути! Зменшуємо X на 1
-            currentBlock->x -= 1;
+            currentBlock.x -= 1;
         }
         // Якще є удар, просто нічого не робимо - блок залишається на місці
     }
@@ -82,9 +82,9 @@ public:
      */
     void moveRight() {
         // Перевіриці чи можна рухнути праворуч
-        if (!field->checkCollision(*currentBlock, currentBlock->x + 1, currentBlock->y)) {
+        if (!field.checkCollision(currentBlock, currentBlock.x + 1, currentBlock.y)) {
             // Можна рухнути! Збільшуємо X на 1
-            currentBlock->x += 1;
+            currentBlock.x += 1;
         }
     }
 
@@ -100,26 +100,26 @@ public:
     void rotate() {
         // КРОК 1: Дізнатися скільки версій повороту у цього типу блока
         // (Фігура 'O' = 1 версія, фігура 'T' = 4 версії)
-        int rotationCount = shapeProvider->getRotationCount(currentBlock->type);
+        int rotationCount = shapeProvider.getRotationCount(currentBlock.type);
         
         // КРОК 2: Обчислити наступний поворот
         // % (modulo) = залишок від ділення
         // (0 + 1) % 4 = 1, (1 + 1) % 4 = 2, (3 + 1) % 4 = 0 (цикл назад)
-        int nextRotation = (currentBlock->rotation + 1) % rotationCount;
+        int nextRotation = (currentBlock.rotation + 1) % rotationCount;
 
         // КРОК 3: Зберегти старий стан на випадок ошибки
         // Якщо поворот не вийде - можемо повернутися назад
-        Block backup = *currentBlock;  // Копіюємо весь блок
+        Block backup = currentBlock;  // Копіюємо весь блок
 
         // КРОК 4: Застосувати новий поворот
-        currentBlock->rotation = nextRotation;  // Встановити новий номер повороту
-        currentBlock->shape = shapeProvider->getShape(currentBlock->type, nextRotation);  // Отримати нову форму
+        currentBlock.rotation = nextRotation;  // Встановити новий номер повороту
+        currentBlock.shape = shapeProvider.getShape(currentBlock.type, nextRotation);  // Отримати нову форму
 
         // КРОК 5: Перевірити чи є колізія після повороту
-        if (field->checkCollision(*currentBlock, currentBlock->x, currentBlock->y)) {
+        if (field.checkCollision(currentBlock, currentBlock.x, currentBlock.y)) {
             // ❌ УПС! Удар! Не можна так обертатися (дісь у стіну)
             // Повертаємо старий стан
-            *currentBlock = backup;
+            currentBlock = backup;
         }
         // ✅ Поворот успішний!
     }
@@ -135,13 +135,13 @@ public:
      */
     bool dropOneStep() {
         // Перевірити чи можна опустити блок на 1 ряд вниз (Y + 1)
-        if (field->checkCollision(*currentBlock, currentBlock->x, currentBlock->y + 1)) {
+        if (field.checkCollision(currentBlock, currentBlock.x, currentBlock.y + 1)) {
             // ❌ НЕ можна! Дно або інший блок
             return false;  // Сигналізуємо що блок "прилип"
         }
         
         // ✅ Можна рухнути! Збільшуємо Y на 1 (вниз)
-        currentBlock->y += 1;
+        currentBlock.y += 1;
         return true;  // Сигналізуємо що блок продовжує падати
     }
 
@@ -152,13 +152,13 @@ public:
      * const - обіцяємо не змінювати блок через цей метод
      */
     const Block &getCurrentBlock() const {
-        return *currentBlock;
+        return currentBlock;
     }
 
     /**
      * Встановити новий блок
      */
     void setBlock(const Block &newBlock) {
-        *currentBlock = newBlock;
+        currentBlock = newBlock;
     }
 };

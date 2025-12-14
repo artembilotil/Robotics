@@ -91,8 +91,8 @@ public:
         // Це як конструюємо компоненти
         : gameField(screenWidth, screenHeight),        // Створюємо поле
           currentBlock(nullptr, 0, 0, 0, 'O'),         // Стартовий блок
-          blockFactory(&shapeProvider, screenWidth),   // Фабрика знає про фігури
-          blockController(&currentBlock, &gameField, &shapeProvider), // Контроллер
+          blockFactory(shapeProvider, screenWidth),   // Фабрика знає про фігури
+          blockController(currentBlock, gameField, shapeProvider), // Контроллер
           renderer(ledControl, modules, screenWidth, screenHeight),   // Малюватель
           joystick(joy),                               // Посилання на джойстик
           rotateBtn(btn),                              // Посилання на кнопку

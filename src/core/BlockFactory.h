@@ -15,11 +15,11 @@
 
 class BlockFactory {
 private:
-    IShapeProvider *shapeProvider;
+    IShapeProvider &shapeProvider;
     const int screenWidth;
 
 public:
-    BlockFactory(IShapeProvider *provider, int screenW)
+    BlockFactory(IShapeProvider &provider, int screenW)
         : shapeProvider(provider), screenWidth(screenW) {}
 
     /**
@@ -33,7 +33,7 @@ public:
         const char types[] = {'I', 'O', 'T', 'L', 'J', 'S', 'Z'};
         char selectedType = types[random(7)];
 
-        ShapePtr shape = shapeProvider->getShape(selectedType, 0);
+        ShapePtr shape = shapeProvider.getShape(selectedType, 0);
 
         return Block(shape, centerX, 0, 0, selectedType);
     }
